@@ -37,7 +37,7 @@ export default function App() {
         </Routes>
       </main>
       <footer className="footer">
-        Projeto de portfólio QA/SDET — loja simulada, nenhum pagamento real é processado.
+        Projeto de portfólio QA/SDET. Loja simulada, nenhum pagamento real é processado.
       </footer>
     </>
   );

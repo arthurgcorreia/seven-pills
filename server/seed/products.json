@@ -1,12 +1,12 @@
 [
   {
     "id": "med-001",
-    "name": "Amoxicilina 500mg (12 cápsulas)",
+    "name": "Amoxicilina 500mg (21 cápsulas)",
     "price": 24.9,
     "category": "Antibiótico",
     "requiresPrescription": true,
     "maxPerOrder": 2,
-    "image": "https://via.placeholder.com/300x300?text=Amoxicilina"
+    "image": "/images/amoxicilina.png"
   },
   {
     "id": "med-002",
@@ -15,16 +15,16 @@
     "category": "Anti-hipertensivo",
     "requiresPrescription": true,
     "maxPerOrder": 3,
-    "image": "https://via.placeholder.com/300x300?text=Losartana"
+    "image": "/images/losartana.jpg"
   },
   {
     "id": "med-003",
-    "name": "Rivotril 2mg (20 comprimidos)",
+    "name": "Rivotril 2mg (30 comprimidos)",
     "price": 32.0,
     "category": "Controlado",
     "requiresPrescription": true,
     "maxPerOrder": 1,
-    "image": "https://via.placeholder.com/300x300?text=Rivotril"
+    "image": "/images/rivotril.jpg"
   },
   {
     "id": "med-004",
@@ -33,25 +33,25 @@
     "category": "Analgésico",
     "requiresPrescription": false,
     "maxPerOrder": 5,
-    "image": "https://via.placeholder.com/300x300?text=Dipirona"
+    "image": "/images/dipirona.jpg"
   },
   {
     "id": "med-005",
-    "name": "Vitamina C 1g (10 comprimidos efervescentes)",
+    "name": "Vitamina C Cebion 1g (30 comprimidos efervescentes)",
     "price": 12.75,
     "category": "Vitamina",
     "requiresPrescription": false,
     "maxPerOrder": 10,
-    "image": "https://via.placeholder.com/300x300?text=Vitamina+C"
+    "image": "/images/vitamina-c.jpg"
   },
   {
     "id": "med-006",
-    "name": "Protetor Solar FPS 50 (120ml)",
+    "name": "Protetor Solar Sundown FPS 50 (200ml)",
     "price": 45.9,
     "category": "Dermocosmético",
     "requiresPrescription": false,
     "maxPerOrder": 5,
-    "image": "https://via.placeholder.com/300x300?text=Protetor+Solar"
+    "image": "/images/protetor-solar.jpg"
   },
   {
     "id": "med-007",
@@ -60,15 +60,15 @@
     "category": "Higiene",
     "requiresPrescription": false,
     "maxPerOrder": 10,
-    "image": "https://via.placeholder.com/300x300?text=Alcool+em+Gel"
+    "image": "/images/alcool-gel.jpg"
   },
   {
     "id": "med-008",
-    "name": "Ibuprofeno 400mg (20 comprimidos)",
+    "name": "Ibuprofeno 400mg (10 comprimidos)",
     "price": 15.4,
     "category": "Anti-inflamatório",
     "requiresPrescription": false,
     "maxPerOrder": 4,
-    "image": "https://via.placeholder.com/300x300?text=Ibuprofeno"
+    "image": "/images/ibuprofeno.jpg"
   }
 ]

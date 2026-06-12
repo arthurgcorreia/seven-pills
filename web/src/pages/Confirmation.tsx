@@ -20,7 +20,7 @@ export default function Confirmation() {
           <span data-testid="order-total">{formatBRL(order.total)}</span>
         </p>
       )}
-      <p className="hint">Este pedido é simulado — nenhum pagamento real foi processado.</p>
+      <p className="hint">Este pedido é simulado. Nenhum pagamento real foi processado.</p>
       <Link className="button" data-testid="back-to-catalog" to="/">
         Voltar ao catálogo
       </Link>

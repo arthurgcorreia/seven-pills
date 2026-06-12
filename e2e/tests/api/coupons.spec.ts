@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { coupons } from '../../data/test-data';
 
-test.describe('API — cupons', () => {
+test.describe('API: cupons', () => {
   test('API-03: PRIMEIRA10 é válido com 10% de desconto', async ({ request }) => {
     const response = await request.post('/api/coupons/validate', {
       data: { code: coupons.valid },

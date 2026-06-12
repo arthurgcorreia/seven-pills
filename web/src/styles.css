@@ -95,9 +95,9 @@ body {
 .card-image,
 .product-image,
 .cart-item-image {
-  background: #eef2f0;
+  background: #fff;
   border-radius: 8px;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .card-image {

@@ -7,7 +7,7 @@ import {
   validCustomer,
 } from '../../data/test-data';
 
-test.describe('API — pedidos', () => {
+test.describe('API: pedidos', () => {
   test('API-04: pedido válido com cupom retorna 201 com total correto', async ({ request }) => {
     const quantity = 2;
     const response = await request.post('/api/orders', {

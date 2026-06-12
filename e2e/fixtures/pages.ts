@@ -14,13 +14,6 @@ interface Pages {
 }
 
 export const test = base.extend<Pages>({
-  // As imagens do seed apontam para um serviço externo de placeholder.
-  // Bloqueá-las mantém os testes herméticos (sem internet em runtime)
-  // e independentes da disponibilidade desse serviço.
-  page: async ({ page }, use) => {
-    await page.route('**://via.placeholder.com/**', (route) => route.abort());
-    await use(page);
-  },
   catalogPage: async ({ page }, use) => {
     await use(new CatalogPage(page));
   },

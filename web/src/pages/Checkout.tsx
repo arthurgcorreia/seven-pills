@@ -82,7 +82,7 @@ export default function Checkout() {
         <ul>
           {items.map(({ product, quantity }) => (
             <li key={product.id} data-testid="checkout-summary-item">
-              {quantity}x {product.name} — {formatBRL(product.price * quantity)}
+              {quantity}x {product.name}: {formatBRL(product.price * quantity)}
             </li>
           ))}
         </ul>

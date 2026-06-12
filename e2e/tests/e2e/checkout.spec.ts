@@ -19,7 +19,7 @@ test.describe('Checkout', () => {
     await expect(checkoutPage.page).toHaveURL(/\/checkout/);
   });
 
-  test('E2E-08: fluxo feliz — item sem receita do catálogo à confirmação', async ({
+  test('E2E-08: fluxo feliz, item sem receita do catálogo à confirmação', async ({
     catalogPage,
     productPage,
     cartPage,

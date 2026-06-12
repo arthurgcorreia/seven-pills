@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { otcProduct, seedProducts } from '../../data/test-data';
 
-test.describe('API — produtos', () => {
+test.describe('API: produtos', () => {
   test('API-01: GET /api/products retorna o catálogo completo', async ({ request }) => {
     const response = await request.get('/api/products');
 
