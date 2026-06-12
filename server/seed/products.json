@@ -1,0 +1,74 @@
+[
+  {
+    "id": "med-001",
+    "name": "Amoxicilina 500mg (12 cápsulas)",
+    "price": 24.9,
+    "category": "Antibiótico",
+    "requiresPrescription": true,
+    "maxPerOrder": 2,
+    "image": "https://via.placeholder.com/300x300?text=Amoxicilina"
+  },
+  {
+    "id": "med-002",
+    "name": "Losartana 50mg (30 comprimidos)",
+    "price": 18.5,
+    "category": "Anti-hipertensivo",
+    "requiresPrescription": true,
+    "maxPerOrder": 3,
+    "image": "https://via.placeholder.com/300x300?text=Losartana"
+  },
+  {
+    "id": "med-003",
+    "name": "Rivotril 2mg (20 comprimidos)",
+    "price": 32.0,
+    "category": "Controlado",
+    "requiresPrescription": true,
+    "maxPerOrder": 1,
+    "image": "https://via.placeholder.com/300x300?text=Rivotril"
+  },
+  {
+    "id": "med-004",
+    "name": "Dipirona 500mg (10 comprimidos)",
+    "price": 8.9,
+    "category": "Analgésico",
+    "requiresPrescription": false,
+    "maxPerOrder": 5,
+    "image": "https://via.placeholder.com/300x300?text=Dipirona"
+  },
+  {
+    "id": "med-005",
+    "name": "Vitamina C 1g (10 comprimidos efervescentes)",
+    "price": 12.75,
+    "category": "Vitamina",
+    "requiresPrescription": false,
+    "maxPerOrder": 10,
+    "image": "https://via.placeholder.com/300x300?text=Vitamina+C"
+  },
+  {
+    "id": "med-006",
+    "name": "Protetor Solar FPS 50 (120ml)",
+    "price": 45.9,
+    "category": "Dermocosmético",
+    "requiresPrescription": false,
+    "maxPerOrder": 5,
+    "image": "https://via.placeholder.com/300x300?text=Protetor+Solar"
+  },
+  {
+    "id": "med-007",
+    "name": "Álcool em Gel 70% (500ml)",
+    "price": 9.99,
+    "category": "Higiene",
+    "requiresPrescription": false,
+    "maxPerOrder": 10,
+    "image": "https://via.placeholder.com/300x300?text=Alcool+em+Gel"
+  },
+  {
+    "id": "med-008",
+    "name": "Ibuprofeno 400mg (20 comprimidos)",
+    "price": 15.4,
+    "category": "Anti-inflamatório",
+    "requiresPrescription": false,
+    "maxPerOrder": 4,
+    "image": "https://via.placeholder.com/300x300?text=Ibuprofeno"
+  }
+]

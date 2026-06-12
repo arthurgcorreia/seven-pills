@@ -1,0 +1,5 @@
+RECEITA MÉDICA (arquivo de teste)
+
+Paciente: Arthur Correia
+Medicamento: conforme itens controlados do pedido.
+Emitida exclusivamente para os testes automatizados deste projeto.

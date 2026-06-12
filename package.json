@@ -1,0 +1,31 @@
+{
+  "name": "seven-pills",
+  "private": true,
+  "version": "1.0.0",
+  "description": "E-commerce de farmácia 100% local com automação E2E + API (Playwright) e CI no GitHub Actions",
+  "scripts": {
+    "dev": "concurrently -k \"npm:dev:server\" \"npm:dev:web\"",
+    "dev:server": "node server/index.js",
+    "dev:web": "vite",
+    "build:web": "vite build",
+    "test:e2e": "playwright test",
+    "report": "playwright show-report"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.2"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.2",
+    "@types/node": "^20.16.10",
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.2",
+    "concurrently": "^9.0.1",
+    "typescript": "^5.6.2",
+    "vite": "^5.4.8"
+  }
+}
