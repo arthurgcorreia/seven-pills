@@ -1,9 +1,9 @@
-import { expect, test } from '@playwright/test';
-import { otcProduct, seedProducts } from '../../data/test-data';
+import { expect, test } from '../../fixtures/pages';
+import { otcProduct, seedProducts, unknownProductId } from '../../data/test-data';
 
 test.describe('API: produtos', () => {
-  test('API-01: GET /api/products retorna o catálogo completo', async ({ request }) => {
-    const response = await request.get('/api/products');
+  test('API-PROD-01: GET /api/products retorna o catálogo completo', async ({ apiActions }) => {
+    const response = await apiActions.getProducts();
 
     expect(response.status()).toBe(200);
     const products = await response.json();
@@ -24,15 +24,19 @@ test.describe('API: produtos', () => {
     }
   });
 
-  test('API-02: GET /api/products/:id retorna o produto quando existe', async ({ request }) => {
-    const response = await request.get(`/api/products/${otcProduct.id}`);
+  test('API-PROD-02: GET /api/products/:id retorna o produto quando existe', async ({
+    apiActions,
+  }) => {
+    const response = await apiActions.getProduct(otcProduct.id);
 
     expect(response.status()).toBe(200);
     expect(await response.json()).toEqual(otcProduct);
   });
 
-  test('API-02: GET /api/products/:id retorna 404 quando não existe', async ({ request }) => {
-    const response = await request.get('/api/products/med-999');
+  test('API-PROD-03: GET /api/products/:id retorna 404 quando não existe', async ({
+    apiActions,
+  }) => {
+    const response = await apiActions.getProduct(unknownProductId);
 
     expect(response.status()).toBe(404);
     expect(await response.json()).toEqual({ error: 'NOT_FOUND' });

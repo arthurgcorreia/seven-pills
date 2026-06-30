@@ -1,44 +1,69 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from '../../fixtures/pages';
 import {
   coupons,
+  invalidCustomer,
   limitedProduct,
   otcProduct,
   prescriptionProduct,
+  unknownProductId,
   validCustomer,
 } from '../../data/test-data';
+import { applyDiscount } from '../../utils/money';
 
 test.describe('API: pedidos', () => {
-  test('API-04: pedido válido com cupom retorna 201 com total correto', async ({ request }) => {
+  test('API-ORD-01: pedido válido sem cupom retorna 201 com total igual ao subtotal', async ({
+    apiActions,
+  }) => {
     const quantity = 2;
-    const response = await request.post('/api/orders', {
-      data: {
-        items: [{ productId: otcProduct.id, quantity }],
-        customer: validCustomer,
-        coupon: coupons.valid,
-        prescriptionAttached: false,
-      },
+    const response = await apiActions.createOrder({
+      items: [{ productId: otcProduct.id, quantity }],
+      customer: validCustomer,
+      prescriptionAttached: false,
     });
 
     expect(response.status()).toBe(201);
     const body = await response.json();
-    expect(body.orderId).toMatch(/^ORD-\d{4,}$/);
     expect(body.status).toBe('confirmed');
-
-    const expectedTotal =
-      Math.round(otcProduct.price * quantity * (1 - coupons.validDiscountPercent / 100) * 100) /
-      100;
-    expect(body.total).toBeCloseTo(expectedTotal, 2);
+    expect(body.total).toBeCloseTo(otcProduct.price * quantity, 2);
   });
 
-  test('API-05: cliente inválido retorna 400 INVALID_CUSTOMER com os campos', async ({
-    request,
+  test('API-ORD-02: pedido válido com PRIMEIRA10 retorna 201 com total com desconto', async ({
+    apiActions,
   }) => {
-    const response = await request.post('/api/orders', {
-      data: {
-        items: [{ productId: otcProduct.id, quantity: 1 }],
-        customer: { name: '', email: 'sem-arroba', cep: '12' },
-        prescriptionAttached: false,
-      },
+    const quantity = 2;
+    const response = await apiActions.createOrder({
+      items: [{ productId: otcProduct.id, quantity }],
+      customer: validCustomer,
+      coupon: coupons.valid,
+      prescriptionAttached: false,
+    });
+
+    expect(response.status()).toBe(201);
+    const body = await response.json();
+    expect(body.total).toBeCloseTo(
+      applyDiscount(otcProduct.price * quantity, coupons.validDiscountPercent),
+      2
+    );
+  });
+
+  test('API-ORD-03: item controlado com receita anexada retorna 201', async ({ apiActions }) => {
+    const response = await apiActions.createOrder({
+      items: [{ productId: prescriptionProduct.id, quantity: 1 }],
+      customer: validCustomer,
+      prescriptionAttached: true,
+    });
+
+    expect(response.status()).toBe(201);
+    expect((await response.json()).status).toBe('confirmed');
+  });
+
+  test('API-ORD-04: cliente inválido retorna 400 INVALID_CUSTOMER com os campos', async ({
+    apiActions,
+  }) => {
+    const response = await apiActions.createOrder({
+      items: [{ productId: otcProduct.id, quantity: 1 }],
+      customer: invalidCustomer,
+      prescriptionAttached: false,
     });
 
     expect(response.status()).toBe(400);
@@ -47,28 +72,35 @@ test.describe('API: pedidos', () => {
     expect(body.fields).toEqual(expect.arrayContaining(['name', 'email', 'cep']));
   });
 
-  test('API-05: itens inválidos retornam 400 INVALID_ITEMS', async ({ request }) => {
-    const response = await request.post('/api/orders', {
-      data: {
-        items: [{ productId: 'med-999', quantity: 1 }],
-        customer: validCustomer,
-        prescriptionAttached: false,
-      },
+  test('API-ORD-05: itens vazios retornam 400 INVALID_ITEMS', async ({ apiActions }) => {
+    const response = await apiActions.createOrder({
+      items: [],
+      customer: validCustomer,
+      prescriptionAttached: false,
     });
 
     expect(response.status()).toBe(400);
     expect((await response.json()).error).toBe('INVALID_ITEMS');
   });
 
-  test('API-06 (tema): item controlado sem receita retorna 422 PRESCRIPTION_REQUIRED', async ({
-    request,
+  test('API-ORD-06: productId inexistente retorna 400 INVALID_ITEMS', async ({ apiActions }) => {
+    const response = await apiActions.createOrder({
+      items: [{ productId: unknownProductId, quantity: 1 }],
+      customer: validCustomer,
+      prescriptionAttached: false,
+    });
+
+    expect(response.status()).toBe(400);
+    expect((await response.json()).error).toBe('INVALID_ITEMS');
+  });
+
+  test('API-ORD-07: item controlado sem receita retorna 422 PRESCRIPTION_REQUIRED', async ({
+    apiActions,
   }) => {
-    const response = await request.post('/api/orders', {
-      data: {
-        items: [{ productId: prescriptionProduct.id, quantity: 1 }],
-        customer: validCustomer,
-        prescriptionAttached: false,
-      },
+    const response = await apiActions.createOrder({
+      items: [{ productId: prescriptionProduct.id, quantity: 1 }],
+      customer: validCustomer,
+      prescriptionAttached: false,
     });
 
     expect(response.status()).toBe(422);
@@ -78,15 +110,13 @@ test.describe('API: pedidos', () => {
     });
   });
 
-  test('API-07 (tema): quantidade acima de maxPerOrder retorna 422 MAX_QUANTITY_EXCEEDED', async ({
-    request,
+  test('API-ORD-08: quantidade acima de maxPerOrder retorna 422 MAX_QUANTITY_EXCEEDED', async ({
+    apiActions,
   }) => {
-    const response = await request.post('/api/orders', {
-      data: {
-        items: [{ productId: limitedProduct.id, quantity: limitedProduct.maxPerOrder + 1 }],
-        customer: validCustomer,
-        prescriptionAttached: true,
-      },
+    const response = await apiActions.createOrder({
+      items: [{ productId: limitedProduct.id, quantity: limitedProduct.maxPerOrder + 1 }],
+      customer: validCustomer,
+      prescriptionAttached: true,
     });
 
     expect(response.status()).toBe(422);
@@ -95,5 +125,53 @@ test.describe('API: pedidos', () => {
       productId: limitedProduct.id,
       maxPerOrder: limitedProduct.maxPerOrder,
     });
+  });
+
+  test('API-ORD-09: quantidade igual a maxPerOrder retorna 201', async ({ apiActions }) => {
+    const response = await apiActions.createOrder({
+      items: [{ productId: limitedProduct.id, quantity: limitedProduct.maxPerOrder }],
+      customer: validCustomer,
+      prescriptionAttached: true,
+    });
+
+    expect(response.status()).toBe(201);
+    expect((await response.json()).status).toBe('confirmed');
+  });
+
+  test('API-ORD-10: cliente inválido tem precedência sobre itens inválidos', async ({
+    apiActions,
+  }) => {
+    const response = await apiActions.createOrder({
+      items: [{ productId: unknownProductId, quantity: 1 }],
+      customer: invalidCustomer,
+      prescriptionAttached: false,
+    });
+
+    expect(response.status()).toBe(400);
+    expect((await response.json()).error).toBe('INVALID_CUSTOMER');
+  });
+
+  test('API-ORD-11: receita tem precedência sobre quantidade máxima', async ({ apiActions }) => {
+    const response = await apiActions.createOrder({
+      items: [
+        { productId: prescriptionProduct.id, quantity: prescriptionProduct.maxPerOrder + 1 },
+      ],
+      customer: validCustomer,
+      prescriptionAttached: false,
+    });
+
+    expect(response.status()).toBe(422);
+    expect((await response.json()).error).toBe('PRESCRIPTION_REQUIRED');
+  });
+
+  test('API-ORD-12: pedido bem-sucedido retorna orderId sequencial', async ({ apiActions }) => {
+    const response = await apiActions.createOrder({
+      items: [{ productId: otcProduct.id, quantity: 1 }],
+      customer: validCustomer,
+      prescriptionAttached: false,
+    });
+
+    expect(response.status()).toBe(201);
+    expect((await response.json()).orderId).toMatch(/^ORD-\d{4,}$/);
   });
 });

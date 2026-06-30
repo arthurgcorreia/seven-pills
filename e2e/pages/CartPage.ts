@@ -1,10 +1,10 @@
 import type { Locator, Page } from '@playwright/test';
 import { BasePage } from './BasePage';
-import { parseBRL } from './money';
 
 export class CartPage extends BasePage {
   readonly cartItems: Locator;
   readonly emptyMessage: Locator;
+  readonly backToCatalog: Locator;
   readonly subtotal: Locator;
   readonly discount: Locator;
   readonly total: Locator;
@@ -17,6 +17,7 @@ export class CartPage extends BasePage {
     super(page);
     this.cartItems = page.getByTestId('cart-item');
     this.emptyMessage = page.getByTestId('cart-empty');
+    this.backToCatalog = page.getByTestId('back-to-catalog');
     this.subtotal = page.getByTestId('cart-subtotal');
     this.discount = page.getByTestId('cart-discount');
     this.total = page.getByTestId('cart-total');
@@ -34,28 +35,35 @@ export class CartPage extends BasePage {
     return this.cartItems.filter({ hasText: name });
   }
 
-  async setItemQuantity(name: string, quantity: number): Promise<void> {
-    await this.itemByName(name).getByTestId('cart-item-quantity').fill(String(quantity));
+  itemQuantity(name: string): Locator {
+    return this.itemByName(name).getByTestId('cart-item-quantity');
   }
 
-  async removeItem(name: string): Promise<void> {
+  itemUnitPrice(name: string): Locator {
+    return this.itemByName(name).getByTestId('cart-item-price');
+  }
+
+  itemTotal(name: string): Locator {
+    return this.itemByName(name).getByTestId('cart-item-total');
+  }
+
+  async fillItemQuantity(name: string, quantity: number): Promise<void> {
+    await this.itemQuantity(name).fill(String(quantity));
+  }
+
+  async clickRemoveItem(name: string): Promise<void> {
     await this.itemByName(name).getByTestId('cart-item-remove').click();
   }
 
-  async applyCoupon(code: string): Promise<void> {
+  async fillCoupon(code: string): Promise<void> {
     await this.couponInput.fill(code);
+  }
+
+  async clickApplyCoupon(): Promise<void> {
     await this.couponApply.click();
   }
 
-  async readSubtotal(): Promise<number> {
-    return parseBRL(await this.subtotal.innerText());
-  }
-
-  async readDiscount(): Promise<number> {
-    return parseBRL(await this.discount.innerText());
-  }
-
-  async proceedToCheckout(): Promise<void> {
+  async clickCheckout(): Promise<void> {
     await this.checkoutButton.click();
   }
 }
