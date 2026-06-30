@@ -23,6 +23,10 @@ export class ApiActions {
     return this.request.get(`/api/products/${id}`);
   }
 
+  getOrder(id: string): Promise<APIResponse> {
+    return this.request.get(`/api/orders/${id}`);
+  }
+
   validateCoupon(code: string): Promise<APIResponse> {
     return this.request.post('/api/coupons/validate', { data: { code } });
   }

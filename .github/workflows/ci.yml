@@ -12,6 +12,7 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
+      - run: npm run test:unit
       - run: npx playwright install --with-deps
       - run: npm run build:web
       - run: npm run test:e2e

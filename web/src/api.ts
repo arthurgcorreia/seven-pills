@@ -1,4 +1,4 @@
-import type { CouponResult, OrderPayload, Product } from './types';
+import type { CouponResult, OrderPayload, OrderResponse, Product } from './types';
 
 const BASE_URL = '/api';
 
@@ -12,6 +12,13 @@ export async function fetchProduct(id: string): Promise<Product | null> {
   const response = await fetch(`${BASE_URL}/products/${id}`);
   if (response.status === 404) return null;
   if (!response.ok) throw new Error('Erro ao carregar produto');
+  return response.json();
+}
+
+export async function fetchOrder(id: string): Promise<OrderResponse | null> {
+  const response = await fetch(`${BASE_URL}/orders/${id}`);
+  if (response.status === 404) return null;
+  if (!response.ok) throw new Error('Erro ao carregar pedido');
   return response.json();
 }
 

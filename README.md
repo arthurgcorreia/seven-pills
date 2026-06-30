@@ -1,13 +1,14 @@
 # 💊 Seven Pills: E-commerce de Farmácia (QA/SDET Portfolio)
 
 [![CI](https://github.com/arthurgcorreia/seven-pills/actions/workflows/ci.yml/badge.svg)](https://github.com/arthurgcorreia/seven-pills/actions/workflows/ci.yml)
-![Playwright](https://img.shields.io/badge/Playwright-53%20testes-2EAD33?logo=playwright&logoColor=white)
-![Cobertura](https://img.shields.io/badge/cobertura-E2E%20%2B%20API-1f6feb)
+![Vitest](https://img.shields.io/badge/Vitest-27%20unit%C3%A1rios-6E9F18?logo=vitest&logoColor=white)
+![Playwright](https://img.shields.io/badge/Playwright-56%20E2E%20%2B%20API-2EAD33?logo=playwright&logoColor=white)
+![Pirâmide](https://img.shields.io/badge/pir%C3%A2mide-unit%20%2B%20API%20%2B%20E2E-1f6feb)
 
 E-commerce de farmácia que roda **100% local**, construído como projeto de portfólio com foco em
-**automação de testes (E2E + API)**. A qualidade da automação importa tanto quanto o sistema:
-arquitetura em três camadas **POM + ACTIONS**, fixtures injetando páginas e ações, massa de dados
-derivada do seed e CI executando os 53 casos a cada push.
+**automação de testes (unit + API + E2E)**. A qualidade da automação importa tanto quanto o sistema:
+arquitetura em três camadas **POM + ACTIONS**, pirâmide de testes completa (unitários das regras de
+negócio, API e E2E), massa de dados derivada do seed e CI executando tudo a cada push.
 
 ## Stack
 
@@ -41,8 +42,14 @@ Os pedidos ficam em memória e somem ao reiniciar o servidor (comportamento espe
 # Primeira vez: instala os navegadores do Playwright
 npx playwright install
 
+# Testes unitários das regras de negócio (Vitest)
+npm run test:unit
+
 # Roda E2E + API (sobe backend e frontend automaticamente via webServer)
 npm run test:e2e
+
+# Tudo: unitários + E2E + API
+npm test
 
 # Abre o relatório HTML
 npm run report
@@ -73,14 +80,26 @@ código é inválido.
 | GET    | `/api/products/:id`       | `200` produto · `404 NOT_FOUND`                           |
 | POST   | `/api/coupons/validate`   | `200` `{valid, discountPercent}` ou `{valid:false, reason}` |
 | POST   | `/api/orders`             | `201` pedido · `400 INVALID_CUSTOMER/INVALID_ITEMS` · `422 PRESCRIPTION_REQUIRED/MAX_QUANTITY_EXCEEDED` |
+| GET    | `/api/orders/:id`         | `200` pedido (sem os dados pessoais do cliente) · `404 NOT_FOUND` |
 
 As validações de negócio vivem em `server/rules.js` e são exercitadas pela suíte de API.
 
-## Cobertura de testes (53 casos)
+## Cobertura de testes (83 casos)
 
-Suíte com **35 testes E2E** e **18 testes de API**, todos rastreáveis para a especificação
-funcional (`docs/SPEC.md`). IDs por área: `CAT` catálogo, `PROD` produto, `CART` carrinho,
-`COUP` cupom, `CHK` checkout, `RX` regras de receita, `ORD` pedidos.
+Pirâmide completa: **27 unitários**, **20 testes de API** e **36 testes E2E**, todos rastreáveis
+para a especificação funcional (`docs/SPEC.md`). IDs por área: `CAT` catálogo, `PROD` produto,
+`CART` carrinho, `COUP` cupom, `CHK` checkout, `RX` regras de receita, `ORD` pedidos.
+
+### Unitários das regras de negócio (`server/rules.test.js`)
+
+| Função | Cobre |
+| ------ | ----- |
+| `validateCustomer` | Cliente válido, cada campo inválido, combinações, cliente ausente |
+| `validateItems` | Lista vazia, não array, produto inexistente, quantidade zero, negativa ou não inteira |
+| `checkPrescription` | Bypass com anexo, bloqueio de controlado, primeiro item bloqueado |
+| `checkMaxQuantity` | Dentro do limite, no limite e acima do limite |
+| `validateCoupon` | Válido, expirado, desconhecido, sensível a maiúsculas |
+| `calculateTotal` | Sem desconto, com desconto arredondado, múltiplos itens |
 
 ### E2E de interface (`e2e/tests/e2e/`)
 
@@ -90,7 +109,7 @@ funcional (`docs/SPEC.md`). IDs por área: `CAT` catálogo, `PROD` produto, `CAR
 | Produto | `E2E-PROD-01..08` | Dados do produto, badge e nota, botões de quantidade, clamp no limite, feedback, produto inexistente |
 | Carrinho | `E2E-CART-01..07` | Adicionar, recalcular, remover, merge, preço e total da linha, persistência em localStorage, clamp |
 | Cupom | `E2E-COUP-01..06` | PRIMEIRA10, EXPIRADO, inválido, vazio, normalização para maiúsculas, propagação ao checkout |
-| Checkout | `E2E-CHK-01..06` | Erros de campo juntos e isolados, resumo, total, carrinho vazio, fluxo feliz |
+| Checkout | `E2E-CHK-01..07` | Erros de campo juntos e isolados, resumo, total, carrinho vazio, fluxo feliz, confirmação resiliente ao reload |
 | Receita (tema) | `E2E-RX-01..02` | Bloqueio sem anexo, conclusão com anexo |
 
 ### API (`e2e/tests/api/`)
@@ -99,7 +118,7 @@ funcional (`docs/SPEC.md`). IDs por área: `CAT` catálogo, `PROD` produto, `CAR
 | ---- | ----- | ----- |
 | Produtos | `API-PROD-01..03` | Catálogo completo com tipos, busca por id, 404 |
 | Cupons | `API-COUP-01..03` | Válido, expirado, desconhecido |
-| Pedidos | `API-ORD-01..12` | Sucesso com e sem cupom, receita anexada, limites de quantidade, erros 400 e 422, precedência das validações, orderId sequencial |
+| Pedidos | `API-ORD-01..14` | Sucesso com e sem cupom, receita anexada, limites de quantidade, erros 400 e 422, precedência das validações, orderId sequencial, recuperação do pedido por id sem PII |
 
 ### Matriz de rastreabilidade (SPEC para testes)
 
@@ -113,6 +132,8 @@ funcional (`docs/SPEC.md`). IDs por área: `CAT` catálogo, `PROD` produto, `CAR
 | `POST /api/orders`: receita obrigatória | API-ORD-07, API-ORD-11, E2E-RX-01 |
 | `POST /api/orders`: quantidade máxima | API-ORD-08, API-ORD-09, E2E-PROD-06, E2E-CART-07 |
 | `POST /api/orders`: sucesso e total | API-ORD-01..03, API-ORD-12, E2E-CHK-05, E2E-CHK-06 |
+| `GET /api/orders/:id` (sem PII e 404) | API-ORD-13, API-ORD-14 |
+| Confirmação resiliente ao reload | E2E-CHK-07 |
 | Catálogo e badge de receita | E2E-CAT-01..04, E2E-PROD-01..03 |
 | Carrinho (Context e localStorage) | E2E-CART-01..07 |
 | Cupom na interface | E2E-COUP-01..06 |
@@ -138,14 +159,15 @@ Todos os elementos interativos expõem **`data-testid`** estáveis, consumidos v
 
 ## CI/CD
 
-O workflow `.github/workflows/ci.yml` roda em todo push/PR: instala dependências e navegadores,
-builda o frontend, executa a suíte completa (o `webServer` do Playwright sobe a aplicação) e
-publica o `playwright-report` como artifact, inclusive quando há falhas.
+O workflow `.github/workflows/ci.yml` roda em todo push/PR: instala dependências, executa os
+unitários (Vitest), instala os navegadores, builda o frontend, roda a suíte E2E + API (o
+`webServer` do Playwright sobe a aplicação) e publica o `playwright-report` como artifact,
+inclusive quando há falhas.
 
 ## Estrutura
 
 ```
-server/          Express + regras de negócio + seed JSON
+server/          Express + regras de negócio + seed JSON + unitários (rules.test.js)
 web/             React + Vite + TypeScript (rotas: catálogo, produto, carrinho, checkout, confirmação)
 web/public/      Fotos reais dos produtos, servidas localmente (sem internet em runtime)
 e2e/

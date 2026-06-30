@@ -14,6 +14,7 @@ const productsById = new Map(products.map((product) => [product.id, product]));
 
 // Pedidos vivem em memória e somem ao reiniciar (aceitável neste projeto).
 const orders = [];
+const ordersById = new Map();
 let orderSequence = 0;
 
 const app = express();
@@ -79,8 +80,19 @@ app.post('/api/orders', (req, res) => {
     createdAt: new Date().toISOString(),
   };
   orders.push(order);
+  ordersById.set(orderId, order);
 
   res.status(201).json({ orderId, status: 'confirmed', total });
+});
+
+// Recupera um pedido sem expor os dados pessoais do cliente (sem PII).
+app.get('/api/orders/:id', (req, res) => {
+  const order = ordersById.get(req.params.id);
+  if (!order) {
+    return res.status(404).json({ error: 'NOT_FOUND' });
+  }
+  const { customer, ...publicOrder } = order;
+  res.json(publicOrder);
 });
 
 app.listen(PORT, () => {

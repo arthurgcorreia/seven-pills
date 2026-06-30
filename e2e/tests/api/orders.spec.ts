@@ -174,4 +174,34 @@ test.describe('API: pedidos', () => {
     expect(response.status()).toBe(201);
     expect((await response.json()).orderId).toMatch(/^ORD-\d{4,}$/);
   });
+
+  test('API-ORD-13: GET /api/orders/:id retorna o pedido sem expor o cliente', async ({
+    apiActions,
+  }) => {
+    const quantity = 2;
+    const created = await apiActions.createOrder({
+      items: [{ productId: otcProduct.id, quantity }],
+      customer: validCustomer,
+      prescriptionAttached: false,
+    });
+    const { orderId } = await created.json();
+
+    const response = await apiActions.getOrder(orderId);
+
+    expect(response.status()).toBe(200);
+    const order = await response.json();
+    expect(order.orderId).toBe(orderId);
+    expect(order.status).toBe('confirmed');
+    expect(order.total).toBeCloseTo(otcProduct.price * quantity, 2);
+    expect(order).not.toHaveProperty('customer');
+  });
+
+  test('API-ORD-14: GET /api/orders/:id inexistente retorna 404 NOT_FOUND', async ({
+    apiActions,
+  }) => {
+    const response = await apiActions.getOrder('ORD-0000');
+
+    expect(response.status()).toBe(404);
+    expect(await response.json()).toEqual({ error: 'NOT_FOUND' });
+  });
 });

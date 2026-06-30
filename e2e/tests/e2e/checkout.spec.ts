@@ -85,4 +85,17 @@ test.describe('Checkout', () => {
     await expect(confirmationPage.orderNumber).toBeVisible();
     await expect(confirmationPage.orderTotal).toContainText(brlDigits(otcProduct.price));
   });
+
+  test('E2E-CHK-07: a confirmação mantém o total após recarregar a página', async ({
+    shopFlow,
+    confirmationPage,
+  }) => {
+    await shopFlow.purchaseOtcProduct(otcProduct.id, validCustomer);
+    await expect(confirmationPage.orderTotal).toBeVisible();
+
+    await confirmationPage.reload();
+
+    await expect(confirmationPage.orderNumber).toHaveText(/^ORD-\d{4,}$/);
+    await expect(confirmationPage.orderTotal).toContainText(brlDigits(otcProduct.price));
+  });
 });
