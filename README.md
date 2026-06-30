@@ -1,8 +1,13 @@
 # 💊 Seven Pills: E-commerce de Farmácia (QA/SDET Portfolio)
 
+[![CI](https://github.com/arthurgcorreia/seven-pills/actions/workflows/ci.yml/badge.svg)](https://github.com/arthurgcorreia/seven-pills/actions/workflows/ci.yml)
+![Playwright](https://img.shields.io/badge/Playwright-53%20testes-2EAD33?logo=playwright&logoColor=white)
+![Cobertura](https://img.shields.io/badge/cobertura-E2E%20%2B%20API-1f6feb)
+
 E-commerce de farmácia que roda **100% local**, construído como projeto de portfólio com foco em
 **automação de testes (E2E + API)**. A qualidade da automação importa tanto quanto o sistema:
-Page Objects, fixtures, massa de dados derivada do seed e CI publicando o relatório do Playwright.
+arquitetura em três camadas **POM + ACTIONS**, fixtures injetando páginas e ações, massa de dados
+derivada do seed e CI executando os 53 casos a cada push.
 
 ## Stack
 
@@ -71,45 +76,65 @@ código é inválido.
 
 As validações de negócio vivem em `server/rules.js` e são exercitadas pela suíte de API.
 
-## Cenários de teste cobertos
+## Cobertura de testes (53 casos)
 
-### E2E (`e2e/tests/e2e/`)
+Suíte com **35 testes E2E** e **18 testes de API**, todos rastreáveis para a especificação
+funcional (`docs/SPEC.md`). IDs por área: `CAT` catálogo, `PROD` produto, `CART` carrinho,
+`COUP` cupom, `CHK` checkout, `RX` regras de receita, `ORD` pedidos.
 
-| ID     | Cenário |
-| ------ | ------- |
-| E2E-01 | Catálogo renderiza todos os produtos do seed |
-| E2E-02 | Produto que exige receita exibe o badge "Exige receita" |
-| E2E-03 | Adicionar ao carrinho incrementa o contador e mostra o item |
-| E2E-04 | Alterar quantidade recalcula o subtotal |
-| E2E-05 | Remover item atualiza o carrinho e zera o contador |
-| E2E-06 | Cupom `PRIMEIRA10` aplica 10%; `EXPIRADO` mostra erro |
-| E2E-07 | Checkout com nome/e-mail/CEP inválidos bloqueia e exibe erros de campo |
-| E2E-08 | Fluxo feliz: item sem receita do catálogo à confirmação com número do pedido |
-| E2E-09 | Item controlado sem receita anexada bloqueia a finalização (tema) |
-| E2E-10 | Item controlado com receita anexada conclui; quantidade acima de `maxPerOrder` exibe erro (tema) |
+### E2E de interface (`e2e/tests/e2e/`)
+
+| Área | Casos | Cobre |
+| ---- | ----- | ----- |
+| Catálogo | `E2E-CAT-01..04` | Render do seed, badge de receita, navegação, erro de API indisponível |
+| Produto | `E2E-PROD-01..08` | Dados do produto, badge e nota, botões de quantidade, clamp no limite, feedback, produto inexistente |
+| Carrinho | `E2E-CART-01..07` | Adicionar, recalcular, remover, merge, preço e total da linha, persistência em localStorage, clamp |
+| Cupom | `E2E-COUP-01..06` | PRIMEIRA10, EXPIRADO, inválido, vazio, normalização para maiúsculas, propagação ao checkout |
+| Checkout | `E2E-CHK-01..06` | Erros de campo juntos e isolados, resumo, total, carrinho vazio, fluxo feliz |
+| Receita (tema) | `E2E-RX-01..02` | Bloqueio sem anexo, conclusão com anexo |
 
 ### API (`e2e/tests/api/`)
 
-| ID     | Cenário |
-| ------ | ------- |
-| API-01 | `GET /api/products` retorna 200 com todos os campos esperados |
-| API-02 | `GET /api/products/:id` retorna 200 quando existe e 404 quando não |
-| API-03 | Validação de cupons: `PRIMEIRA10` válido, `EXPIRADO` inválido |
-| API-04 | Pedido válido retorna 201 com `orderId` e total com desconto |
-| API-05 | Cliente inválido retorna 400 `INVALID_CUSTOMER` (e itens inválidos, 400 `INVALID_ITEMS`) |
-| API-06 | Item controlado sem receita retorna 422 `PRESCRIPTION_REQUIRED` (tema) |
-| API-07 | Quantidade acima de `maxPerOrder` retorna 422 `MAX_QUANTITY_EXCEEDED` (tema) |
+| Área | Casos | Cobre |
+| ---- | ----- | ----- |
+| Produtos | `API-PROD-01..03` | Catálogo completo com tipos, busca por id, 404 |
+| Cupons | `API-COUP-01..03` | Válido, expirado, desconhecido |
+| Pedidos | `API-ORD-01..12` | Sucesso com e sem cupom, receita anexada, limites de quantidade, erros 400 e 422, precedência das validações, orderId sequencial |
 
-## Arquitetura da automação
+### Matriz de rastreabilidade (SPEC para testes)
 
-- **Page Objects** em `e2e/pages/` (Catalog, Product, Cart, Checkout, Confirmation + BasePage
-  com os elementos globais do header).
-- **Fixtures** em `e2e/fixtures/pages.ts` injetam os Page Objects nos testes.
-- **Massa de dados** em `e2e/data/`: o seed do backend é importado diretamente, então os testes
-  nunca dessincronizam do catálogo; inclui clientes válidos/inválidos, cupons e o arquivo de
-  receita usado no upload.
-- Todos os elementos interativos da UI expõem **`data-testid`** estáveis; os testes usam
-  `getByTestId`.
+| Requisito (SPEC) | Testes |
+| ---------------- | ------ |
+| `GET /api/products` | API-PROD-01 |
+| `GET /api/products/:id` (200 e 404) | API-PROD-02, API-PROD-03 |
+| `POST /api/coupons/validate` | API-COUP-01..03 |
+| `POST /api/orders`: cliente inválido | API-ORD-04, API-ORD-10 |
+| `POST /api/orders`: itens inválidos | API-ORD-05, API-ORD-06 |
+| `POST /api/orders`: receita obrigatória | API-ORD-07, API-ORD-11, E2E-RX-01 |
+| `POST /api/orders`: quantidade máxima | API-ORD-08, API-ORD-09, E2E-PROD-06, E2E-CART-07 |
+| `POST /api/orders`: sucesso e total | API-ORD-01..03, API-ORD-12, E2E-CHK-05, E2E-CHK-06 |
+| Catálogo e badge de receita | E2E-CAT-01..04, E2E-PROD-01..03 |
+| Carrinho (Context e localStorage) | E2E-CART-01..07 |
+| Cupom na interface | E2E-COUP-01..06 |
+| Checkout e validação client-side | E2E-CHK-01..04 |
+| Upload de receita no checkout | E2E-RX-01, E2E-RX-02 |
+
+## Arquitetura da automação (POM + ACTIONS)
+
+Três camadas com responsabilidades isoladas. Regra de ouro: a **Page** sabe *onde* clicar, a
+**Action** sabe *o que* fazer e o **Spec** sabe *o que* verificar.
+
+- **Pages** (`e2e/pages/`): expõem locators e interações atômicas (um clique, um preenchimento,
+  leitura de um texto). Sem fluxo e sem asserções.
+- **Actions** (`e2e/actions/`): orquestram os Page Objects em intenções de negócio (adicionar ao
+  carrinho, aplicar cupom, concluir a compra). `ShopFlowActions` cobre jornadas completas entre
+  telas e `ApiActions` é o cliente tipado da API. Sem asserções.
+- **Specs** (`e2e/tests/`): chamam Actions e Pages e concentram todos os `expect`.
+
+Apoiam as camadas: **fixtures** (`e2e/fixtures/pages.ts`) que injetam páginas, ações e o cliente
+de API; **massa de dados** (`e2e/data/`) derivada do seed do backend, então os testes nunca
+dessincronizam do catálogo; e **utilidades** (`e2e/utils/money.ts`) para parsing de valores em BRL.
+Todos os elementos interativos expõem **`data-testid`** estáveis, consumidos via `getByTestId`.
 
 ## CI/CD
 
@@ -124,10 +149,12 @@ server/          Express + regras de negócio + seed JSON
 web/             React + Vite + TypeScript (rotas: catálogo, produto, carrinho, checkout, confirmação)
 web/public/      Fotos reais dos produtos, servidas localmente (sem internet em runtime)
 e2e/
-  pages/         Page Objects
-  fixtures/      Fixtures do Playwright
+  pages/         Page Objects (locators + interações atômicas)
+  actions/       Actions de negócio + ShopFlowActions (jornadas) + ApiActions (cliente da API)
+  fixtures/      Fixtures do Playwright (injetam pages, actions e apiActions)
   data/          Massa de dados (derivada do seed) + arquivo de receita
-  tests/e2e/     Specs de interface (E2E-01..10)
-  tests/api/     Specs de API (API-01..07)
+  utils/         Utilidades (parsing de valores em BRL)
+  tests/e2e/     Specs de interface (catálogo, produto, carrinho, cupom, checkout, receita)
+  tests/api/     Specs de API (produtos, cupons, pedidos)
 docs/SPEC.md     Especificação funcional que orientou o desenvolvimento e os testes
 ```
